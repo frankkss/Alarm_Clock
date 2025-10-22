@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 from datetime import datetime
 import time
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            static_folder='static',
+            static_url_path='/static')
 
 # Store active alarms (in production, use a database)
 active_alarms = {}
