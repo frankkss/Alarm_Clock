@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌙 Smart Sleep Optimizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🌙 SMART SLEEP OPTIMIZER 🌙</h1>
+        
+        <div class="setup-panel" id="setupPanel">
+            <div class="form-group">
+                <label for="sleepHours">💤 How many hours do you want to sleep?</label>
+                <input type="number" id="sleepHours" min="0.5" max="24" step="0.5" value="8" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="realDuration">⚡ In how many minutes?</label>
+                <input type="number" id="realDuration" min="1" max="1440" step="1" value="3" required>
+            </div>
+            
+            <div id="speedInfo" class="speed-info"></div>
+            
+            <button onclick="startAlarm()" class="btn-primary">Start Sleep Simulation</button>
+        </div>
+        
+        <div class="status-panel" id="statusPanel" style="display: none;">
+            <h2>😴 Sleep in Progress...</h2>
+            <p>Time Remaining:</p>
+            
+            <div class="clock-container">
+                <svg class="analog-clock" viewBox="0 0 200 200">
+                    <!-- Clock face -->
+                    <circle cx="100" cy="100" r="95" class="clock-face"/>
+                    
+                    <!-- Hour markers -->
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(0 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(30 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(60 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(90 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(120 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(150 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(180 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(210 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(240 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(270 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(300 100 100)"/>
+                    <line x1="100" y1="10" x2="100" y2="20" class="hour-marker" transform="rotate(330 100 100)"/>
+                    
+                    <!-- Numbers -->
+                    <text x="100" y="35" class="clock-number">12</text>
+                    <text x="150" y="107" class="clock-number">3</text>
+                    <text x="100" y="180" class="clock-number">6</text>
+                    <text x="50" y="107" class="clock-number">9</text>
+                    
+                    <text x="130" y="50" class="clock-number clock-number-small">1</text>
+                    <text x="155" y="75" class="clock-number clock-number-small">2</text>
+                    <text x="155" y="140" class="clock-number clock-number-small">4</text>
+                    <text x="130" y="165" class="clock-number clock-number-small">5</text>
+                    <text x="70" y="165" class="clock-number clock-number-small">7</text>
+                    <text x="45" y="140" class="clock-number clock-number-small">8</text>
+                    <text x="45" y="75" class="clock-number clock-number-small">10</text>
+                    <text x="70" y="50" class="clock-number clock-number-small">11</text>
+                    
+                    <!-- Clock hands -->
+                    <line id="hourHand" x1="100" y1="100" x2="100" y2="50" class="hour-hand"/>
+                    <line id="minuteHand" x1="100" y1="100" x2="100" y2="35" class="minute-hand"/>
+                    <line id="secondHand" x1="100" y1="100" x2="100" y2="25" class="second-hand"/>
+                    
+                    <!-- Center dot -->
+                    <circle cx="100" cy="100" r="4" class="center-dot"/>
+                </svg>
+                <div class="digital-time" id="virtualTime">--:--:--</div>
+            </div>
+            
+            <p>Sleeping for: <span id="totalSleep"></span> hours</p>
+            <p>Speed: <span id="speedFactor"></span>x faster</p>
+            <button onclick="stopAlarm()" class="btn-danger">Stop Alarm</button>
+        </div>
+        
+        <div class="complete-panel" id="completePanel" style="display: none;">
+            <h2>⏰ Wake Up!</h2>
+            <p>You completed your simulated sleep!</p>
+            <button onclick="resetApp()" class="btn-primary">Set New Alarm</button>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
