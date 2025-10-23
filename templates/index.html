@@ -294,8 +294,8 @@
         });
 
         function startAlarm() {
-            const sleepHours = document.getElementById('sleepHours').value;
-            const realDuration = document.getElementById('realDuration').value;
+            const sleepHours = parseFloat(document.getElementById('sleepHours').value);
+            const realDuration = parseFloat(document.getElementById('realDuration').value);
             
             if (!sleepHours || !realDuration) {
                 alert('Please fill in all fields!');
@@ -319,75 +319,105 @@
                 document.getElementById('statusPanel').style.display = 'block';
                 document.getElementById('totalSleep').textContent = sleepHours;
                 
+                // Store local data for client-side calculation
+                window.alarmData = {
+                    startTime: Date.now(),
+                    sleepHours: sleepHours,
+                    realDurationMinutes: realDuration,
+                    fastFactor: data.fast_factor,
+                    totalSleepSeconds: sleepHours * 3600
+                };
+                
                 startStatusUpdates();
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to start alarm');
+                alert('Failed to start alarm: ' + error.message);
             });
         }
 
         function startStatusUpdates() {
-            statusInterval = setInterval(() => {
-                if (!currentAlarmId) return;
+            // Client-side calculation for smooth updates
+            const updateDisplay = () => {
+                if (!window.alarmData) return;
                 
-                fetch(`/alarm_status/${currentAlarmId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('virtualTime').textContent = data.remaining_time;
-                        document.getElementById('speedFactor').textContent = data.fast_factor;
-                        
-                        updateAnalogClock(data.remaining_time);
-                        
-                        if (data.status === 'completed') {
-                            clearInterval(statusInterval);
-                            document.getElementById('statusPanel').style.display = 'none';
-                            document.getElementById('completePanel').style.display = 'block';
-                            playAlarmSound();
-                        }
-                    })
-                    .catch(error => console.error('Error fetching status:', error));
-            }, 50);
+                const elapsed = (Date.now() - window.alarmData.startTime) / 1000; // seconds
+                const virtualElapsed = elapsed * window.alarmData.fastFactor;
+                const remaining = Math.max(0, window.alarmData.totalSleepSeconds - virtualElapsed);
+                
+                if (remaining <= 0) {
+                    clearInterval(statusInterval);
+                    document.getElementById('statusPanel').style.display = 'none';
+                    document.getElementById('completePanel').style.display = 'block';
+                    playAlarmSound();
+                    return;
+                }
+                
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                const seconds = Math.floor(remaining % 60);
+                const milliseconds = Math.floor((remaining % 1) * 1000);
+                
+                const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+                
+                document.getElementById('virtualTime').textContent = timeString;
+                document.getElementById('speedFactor').textContent = window.alarmData.fastFactor.toFixed(2);
+                
+                updateAnalogClock(timeString);
+            };
+            
+            // Update every 50ms for smooth animation
+            statusInterval = setInterval(updateDisplay, 50);
+            updateDisplay(); // Initial update
         }
 
         function stopAlarm() {
             if (!currentAlarmId) return;
+            
+            clearInterval(statusInterval);
             
             fetch(`/stop_alarm/${currentAlarmId}`, {
                 method: 'POST'
             })
             .then(response => response.json())
             .then(data => {
-                clearInterval(statusInterval);
                 resetApp();
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                resetApp(); // Reset anyway
+            });
         }
 
         function resetApp() {
             clearInterval(statusInterval);
             currentAlarmId = null;
+            window.alarmData = null;
             document.getElementById('setupPanel').style.display = 'block';
             document.getElementById('statusPanel').style.display = 'none';
             document.getElementById('completePanel').style.display = 'none';
         }
 
         function playAlarmSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = 1000;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 1);
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 1000;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+            } catch (e) {
+                console.error('Audio playback failed:', e);
+            }
         }
 
         function updateAnalogClock(remainingTime) {
