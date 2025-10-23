@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -32,14 +32,23 @@
 
         h1 {
             text-align: center;
-            color: #667eea;
-            margin-bottom: 30px;
+            color: #ff6b9d;
+            margin-bottom: 10px;
             font-size: 24px;
+        }
+
+        .quote {
+            text-align: center;
+            font-style: italic;
+            color: #c06c84;
+            margin-bottom: 30px;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         h2 {
             text-align: center;
-            color: #667eea;
+            color: #ff6b9d;
             margin-bottom: 20px;
         }
 
@@ -57,7 +66,7 @@
         input[type="number"] {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #ffc2d4;
             border-radius: 8px;
             font-size: 16px;
             transition: border-color 0.3s;
@@ -65,7 +74,7 @@
 
         input[type="number"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #ff6b9d;
         }
 
         .btn-primary,
@@ -81,19 +90,19 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%);
             color: white;
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #ff85a2 0%, #ff6b9d 100%);
             color: white;
         }
 
         .btn-primary:hover,
         .btn-danger:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 20px rgba(255, 107, 157, 0.3);
         }
 
         .status-panel p,
@@ -110,10 +119,10 @@
 
         .speed-info {
             padding: 12px;
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            background: linear-gradient(135deg, #ffc2d415 0%, #ff6b9d15 100%);
             border-radius: 8px;
             text-align: center;
-            color: #667eea;
+            color: #ff6b9d;
             font-weight: 600;
             margin-bottom: 20px;
             min-height: 24px;
@@ -133,44 +142,44 @@
 
         .clock-face {
             fill: white;
-            stroke: #667eea;
+            stroke: #ff6b9d;
             stroke-width: 3;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            filter: drop-shadow(0 4px 6px rgba(255, 107, 157, 0.2));
         }
 
         .hour-marker {
-            stroke: #667eea;
+            stroke: #ff6b9d;
             stroke-width: 3;
             stroke-linecap: round;
         }
 
         .hour-hand {
-            stroke: #667eea;
+            stroke: #ff6b9d;
             stroke-width: 6;
             stroke-linecap: round;
             transform-origin: 100px 100px;
         }
 
         .minute-hand {
-            stroke: #764ba2;
+            stroke: #c06c84;
             stroke-width: 4;
             stroke-linecap: round;
             transform-origin: 100px 100px;
         }
 
         .second-hand {
-            stroke: #f5576c;
+            stroke: #ff85a2;
             stroke-width: 2;
             stroke-linecap: round;
             transform-origin: 100px 100px;
         }
 
         .center-dot {
-            fill: #667eea;
+            fill: #ff6b9d;
         }
 
         .clock-number {
-            fill: #667eea;
+            fill: #ff6b9d;
             font-size: 18px;
             font-weight: bold;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -184,7 +193,7 @@
 
         .digital-time {
             font-size: 32px;
-            color: #667eea;
+            color: #ff6b9d;
             font-weight: bold;
             font-family: 'Courier New', monospace;
             margin-top: 15px;
@@ -193,7 +202,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌙 SMART SLEEP OPTIMIZER 🌙</h1>
+        <h1>KC's Alarm Clock</h1>
+        <p class="quote">"Sleep Faster" - Arnold Schwarzenegger</p>
         
         <div class="setup-panel" id="setupPanel">
             <div class="form-group">
@@ -213,7 +223,6 @@
         
         <div class="status-panel" id="statusPanel" style="display: none;">
             <h2>😴 Sleep in Progress...</h2>
-            <p>Time Remaining:</p>
             
             <div class="clock-container">
                 <svg class="analog-clock" viewBox="0 0 200 200">
@@ -261,7 +270,6 @@
             </div>
             
             <p>Sleeping for: <span id="totalSleep"></span> hours</p>
-            <p>Speed: <span id="speedFactor"></span>x faster</p>
             <button onclick="stopAlarm()" class="btn-danger">Stop Alarm</button>
         </div>
         
@@ -285,7 +293,7 @@
                 const hours = parseFloat(sleepHours.value) || 8;
                 const minutes = parseFloat(realDuration.value) || 3;
                 const speedFactor = (hours * 60) / minutes;
-                speedInfo.textContent = `⚡ Speed: ${speedFactor.toFixed(1)}x faster (${hours} hours in ${minutes} minutes)`;
+                speedInfo.textContent = `⚡ Speed: (${hours} hours in ${minutes} minutes)`;
             }
             
             sleepHours.addEventListener('input', updateSpeedInfo);
@@ -361,7 +369,6 @@
                 const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
                 
                 document.getElementById('virtualTime').textContent = timeString;
-                document.getElementById('speedFactor').textContent = window.alarmData.fastFactor.toFixed(2);
                 
                 updateAnalogClock(timeString);
             };
@@ -400,21 +407,28 @@
 
         function playAlarmSound() {
             try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = 1000;
-                oscillator.type = 'sine';
-                
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 1);
+                const audio = new Audio('/static/ringtone.mp3');
+                audio.volume = 0.7;
+                audio.loop = false;
+                audio.play().catch(e => {
+                    console.error('Audio playback failed:', e);
+                    // Fallback to Web Audio API beep
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 1000;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 1);
+                });
             } catch (e) {
                 console.error('Audio playback failed:', e);
             }
