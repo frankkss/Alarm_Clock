@@ -212,13 +212,20 @@
             </div>
             
             <div class="form-group">
-                <label for="realDuration">⚡ In how many minutes?</label>
-                <input type="number" id="realDuration" min="1" max="1440" step="1" value="3" required>
+                <label>⚡ In how much time?</label>
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <input type="number" id="realHours" min="0" max="24" step="1"  placeholder="Hours">
+                    </div>
+                    <div style="flex: 1;">
+                        <input type="number" id="realMinutes" min="0" max="59" step="1" placeholder="Minutes">
+                    </div>
+                </div>
             </div>
             
             <div id="speedInfo" class="speed-info"></div>
             
-            <button onclick="startAlarm()" class="btn-primary">Start Sleep Simulation</button>
+            <button onclick="startAlarm()" class="btn-primary">Start Sleep</button>
         </div>
         
         <div class="status-panel" id="statusPanel" style="display: none;">
@@ -275,7 +282,7 @@
         
         <div class="complete-panel" id="completePanel" style="display: none;">
             <h2>⏰ Wake Up!</h2>
-            <p>You completed your simulated sleep!</p>
+            <p>You completed your sleep!</p>
             <button onclick="resetApp()" class="btn-primary">Set New Alarm</button>
         </div>
     </div>
@@ -286,27 +293,40 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             const sleepHours = document.getElementById('sleepHours');
-            const realDuration = document.getElementById('realDuration');
+            const realHours = document.getElementById('realHours');
+            const realMinutes = document.getElementById('realMinutes');
             const speedInfo = document.getElementById('speedInfo');
             
             function updateSpeedInfo() {
                 const hours = parseFloat(sleepHours.value) || 8;
-                const minutes = parseFloat(realDuration.value) || 3;
-                const speedFactor = (hours * 60) / minutes;
-                speedInfo.textContent = `⚡ Speed: (${hours} hours in ${minutes} minutes)`;
+                const rHours = parseFloat(realHours.value) || 0;
+                const rMinutes = parseFloat(realMinutes.value) || 0;
+                const totalMinutes = (rHours * 60) + rMinutes;
+                
+                if (totalMinutes === 0) {
+                    speedInfo.textContent = '⚡ Please enter a duration';
+                    return;
+                }
+                
+                const speedFactor = (hours * 60) / totalMinutes;
+                const timeText = rHours > 0 ? `${rHours}h ${rMinutes}m` : `${rMinutes}m`;
+                speedInfo.textContent = `⚡ Goal: (${hours} hrs sleep in just ${timeText})`;
             }
             
             sleepHours.addEventListener('input', updateSpeedInfo);
-            realDuration.addEventListener('input', updateSpeedInfo);
+            realHours.addEventListener('input', updateSpeedInfo);
+            realMinutes.addEventListener('input', updateSpeedInfo);
             updateSpeedInfo();
         });
 
         function startAlarm() {
             const sleepHours = parseFloat(document.getElementById('sleepHours').value);
-            const realDuration = parseFloat(document.getElementById('realDuration').value);
+            const realHours = parseFloat(document.getElementById('realHours').value) || 0;
+            const realMinutes = parseFloat(document.getElementById('realMinutes').value) || 0;
+            const totalRealMinutes = (realHours * 60) + realMinutes;
             
-            if (!sleepHours || !realDuration) {
-                alert('Please fill in all fields!');
+            if (!sleepHours || totalRealMinutes <= 0) {
+                alert('Please fill in all fields with valid values!');
                 return;
             }
             
@@ -317,7 +337,7 @@
                 },
                 body: JSON.stringify({
                     sleep_hours: sleepHours,
-                    real_duration_minutes: realDuration
+                    real_duration_minutes: totalRealMinutes
                 })
             })
             .then(response => response.json())
@@ -331,7 +351,7 @@
                 window.alarmData = {
                     startTime: Date.now(),
                     sleepHours: sleepHours,
-                    realDurationMinutes: realDuration,
+                    realDurationMinutes: totalRealMinutes,
                     fastFactor: data.fast_factor,
                     totalSleepSeconds: sleepHours * 3600
                 };
@@ -445,9 +465,11 @@
             const totalMinutes = minutes + (totalSeconds / 60);
             const totalHours = hours + (totalMinutes / 60);
             
-            const secondAngle = (totalSeconds / 60) * 360;
-            const minuteAngle = (totalMinutes / 60) * 360;
-            const hourAngle = ((totalHours % 12) / 12) * 360;
+            // Calculate angles: subtract from 360 and negate to reverse direction
+            // Clock starts at 12 (top), angles rotate clockwise
+            const secondAngle = -((totalSeconds / 60) * 360);
+            const minuteAngle = -((totalMinutes / 60) * 360);
+            const hourAngle = -(((totalHours % 12) / 12) * 360);
             
             const hourHand = document.getElementById('hourHand');
             const minuteHand = document.getElementById('minuteHand');
